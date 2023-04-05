@@ -10,7 +10,7 @@ from models import database , Person_Details , Session
 # Initialize app variables
 
 s= Session()
-app =Flask(__name__ , template_folder="file")
+app =Flask(__name__,template_folder="file")
 
 # Connect to the database
 
@@ -38,7 +38,7 @@ def getdata():
         s.add(p)
 
         #image name from parameter
-        # img_filename = request.args.get('image_name',type=str)
+        # name = request.args.get('image_name',type=str)
 
         # Open a video capture object for the camera
         video_capture = cv2.VideoCapture(0)
@@ -56,8 +56,10 @@ def getdata():
             cv2.imshow('Camera Feed', small_frame)
 
             # Check if the user has clicked on the window
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+
             elif cv2.waitKey(1) & 0xFF == ord('c'):
                 # User has clicked on the window, so capture the current frame
                 rgb_small_frame = small_frame[:, :, ::-1]  # Convert from BGR to RGB
@@ -68,14 +70,14 @@ def getdata():
                 # Detect faces in the image
                 face_locations = face_recognition.face_locations(rgb_small_frame)
                 face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-                print(img_filename)
+                print(name)
                 # Insert the image data, filename, and ID into the database
                 img_data = pyodbc.Binary(img_encoded)
-                #img_filename = request.form.get('image_name')
-                if (img_filename is not None) and (len(face_encodings) > 0):
+                #name = request.form.get('image_name')
+                if (name is not None) and (len(face_encodings) > 0):
                     val  =  face_encodings[0].tobytes()
-                    # cursor.execute("INSERT INTO images (name, encoding, image) VALUES (?, ?, ?);", ( img_filename , val , img_data ))
-                    database(p,img_filename , val , img_data)
+                    # cursor.execute("INSERT INTO images (name, encoding, image) VALUES (?, ?, ?);", ( name , val , img_data ))
+                    database(p ,name ,val ,img_data )
                     msg = " Account Created Successfully..."
                 else:
                     msg = " Account Not Created "
@@ -92,17 +94,20 @@ def getdata():
 
                 break
     except:
+
         mydb.rollback()
         msg = "Error in Insertion"
+
     finally:
-    # Release the camera and database connection
+
+        # Release the camera and database connection
         video_capture.release()
         cv2.destroyAllWindows()
         cursor.close()
         mydb.close()
 
 
-        return render_template("result.html", msg= msg,value=value)
+        return render_template("result.html", msg= msg)
     
 @app.route("/login")
 def login():
@@ -170,6 +175,9 @@ def fetchdata():
                     right *= 4
                     bottom *= 4
                     left *= 4
+
+                    if top < 0 : top = 0
+                    if bottom < 0 : bottom = 0
 
                     # Draw a box around the face
                     cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
@@ -242,5 +250,6 @@ def changedata():
             conn.close()
             return render_template("result.html", msg= msg)
 
+s.close()
 if __name__ == '__main__':
     app.run()
