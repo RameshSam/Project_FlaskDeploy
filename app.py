@@ -10,7 +10,7 @@ from models import database , Person_Details , Session
 # Initialize app variables
 
 s= Session()
-app =Flask(__name__ , template_folder="Testing_FrontEnd",static_url_path="/static")
+app =Flask(__name__ , template_folder="file")
 
 # Connect to the database
 
