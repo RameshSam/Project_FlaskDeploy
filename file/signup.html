@@ -76,6 +76,22 @@
             justify-content: space-between;
             align-items: center;
         }
+        p
+        {
+            margin: 15px 0 10px;
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        a
+        {
+            color: #f06;
+            margin: 0 8px;
+            font-weight: bold;
+            font-size: 18px;
+            text-decoration: none;
+            text-transform: lowercase;
+        }
         button
         {
             padding: 10px 30px;
@@ -88,22 +104,6 @@
             font-size: 15px;
         }
         button:hover
-        {
-            box-shadow: 1px 1px 20px #f06;
-        }
-        a
-        { 
-            padding: 10px 30px;
-            background: #f06;
-            outline: none;
-            border: none;
-            border-radius: 50px;
-            color: white;
-            margin: 15px;
-            text-decoration: none;
-            font-size: 15px;
-        }
-        a:hover
         {
             box-shadow: 1px 1px 20px #f06;
         }
@@ -138,10 +138,10 @@
             <input type="text" name="name" placeholder="Name">
             <input type="email" name="email" placeholder="Email">
             <input type="password" name="pass" placeholder="Password">
+            <p>Are you already have an Account ? <a href="/login">Login</a></p>
         </div>
         <div class="but">
-            <button><i class="fa-solid fa-user-plus"></i>Create</button>
-            <!-- <a href="/getdata/takephoto"><i class="fa-sharp fa-solid fa-camera"></i></i>Take Picture</a> -->
+            <button><i class="fa-solid fa-user-plus"></i> Create</button>
         </div>
     </form>
     <div class="form">
