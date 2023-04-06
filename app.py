@@ -28,7 +28,6 @@ def index():
 
 @app.route("/getdata",methods = ['GET','POST'])   
 def getdata():
-    # try:
         reg = request.form["Reg"]
         name = request.form["name"]
         email = request.form["email"]
@@ -94,23 +93,9 @@ def getdata():
                     print("Image name is none or No face detected in the image.")
 
                 # Break out of the loop and close the window
-                # scmd = """ SELECT * FROM images ;"""
-                # cursor.execute(scmd)
-                # result = cursor.fetchmany()
-                # for i in result:
-                #     print(i)
-                # print(" Table Showed ")
-                # mydb.commit()
 
                 break
-    # except:
 
-    #     mydb.rollback()
-    #     msg = "Error in Insertion"
-
-    # finally:
-
-    #     # Release the camera and database connection
         video_capture.release()
         cv2.destroyAllWindows()
         cursor.close()
@@ -132,12 +117,12 @@ def fetchdata():
             face_names = []
             known_face_encodings = []
             process_this_frame = True
-
-            cursor.execute("SELECT id FROM images") 
+            
+            cursor.execute("SELECT reg FROM images") 
             image_ids = cursor.fetchall()
 
             for image_id in image_ids:
-                cursor.execute("SELECT Img FROM images WHERE id = ?",(image_id[0],))
+                cursor.execute("SELECT Img FROM images WHERE reg = ?",(image_id[0],))
                 image_data = cursor.fetchone()
                 np_image = np.frombuffer(image_data[0], np.uint8)
                 image = cv2.imdecode(np_image, cv2.IMREAD_COLOR)
@@ -212,12 +197,11 @@ def fetchdata():
             mydb.rollback()
             msg = "Error in Logining"
         finally:
-        # Release the camera and database connection
+            # Release the camera and database connection
             video_capture.release()
             cv2.destroyAllWindows()
             cursor.close()
             mydb.close()
-
 
             return render_template("result.html", msg= msg)
 
@@ -227,7 +211,9 @@ def change():
 
 @app.route("/changedata",methods =['GET',"POST"])
 def changedata():
+   
    if request.method == "POST" :
+        
         try:
             email = request.form['email']
             curpass = request.form["curpass"]
@@ -252,7 +238,6 @@ def changedata():
         except:
             mydb.rollback()
             msg = "Error in Updation"
-            
 
         finally:
             cursor.close()
