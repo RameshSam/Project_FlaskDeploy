@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine , Column , ForeignKey , String , Integer , LargeBinary
 from sqlalchemy.orm import sessionmaker , declarative_base
-import os , cv2
+import os 
 
 Base = declarative_base()
 
@@ -23,12 +23,12 @@ class Person_Details(Base):
 class Store_Image(Base):
     __tablename__ = "images"
     id = Column("id",Integer,primary_key=True)
-    Img_Name = Column(String )
+    Img_Name = Column(String)
     Img = Column(LargeBinary)
     Img_encoding = Column(LargeBinary)
     reg = Column("reg", Integer , ForeignKey("Empolyee.reg"))
 
-    def __init__(self ,Img_encoding , Img_Name ,  img , reg):
+    def __init__(self , Img_Name , Img , Img_encoding, reg):
         self.Img_Name = Img_Name
         self.Img = Img
         self.Img_encoding = Img_encoding
@@ -49,7 +49,9 @@ Session = sessionmaker(bind=engine)
 s = Session()
 
 def database(temp,name,img,img_Encode):
-    p = Store_Image(name,img,img_Encode,temp.reg)
-    s.add(p)
+    path = temp.reg
+    st = Store_Image(name,img,img_Encode,path)
+    s.add(st)
     s.commit()
-    s.close()
+
+s.close()

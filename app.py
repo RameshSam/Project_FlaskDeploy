@@ -28,7 +28,7 @@ def index():
 
 @app.route("/getdata",methods = ['GET','POST'])   
 def getdata():
-    try:
+    # try:
         reg = request.form["Reg"]
         name = request.form["name"]
         email = request.form["email"]
@@ -36,6 +36,7 @@ def getdata():
 
         p = Person_Details(reg , name , email ,password )
         s.add(p)
+        s.commit()
 
         #image name from parameter
         # name = request.args.get('image_name',type=str)
@@ -44,16 +45,20 @@ def getdata():
         video_capture = cv2.VideoCapture(0)
 
         # Display the video capture feed in a window
-        cv2.namedWindow("Camera Feed")
         while True:
             # Capture a frame from the video feed
-            ret, frame = video_capture.read()
+            ret , frame = video_capture.read()
+            if not ret:
+                msg = "Please Turn on Camera Device"
+                break
 
             # Resize the frame for faster processing
-            small_frame = cv2.resize(frame, (640,480), fx=0.25, fy=0.25)
+            # small_frame = cv2.resize(frame, (640,480), fx=0.25, fy=0.25)
 
             # Display the frame in the window
-            cv2.imshow('Camera Feed', small_frame)
+            cv2.imshow(' Interface ',frame)
+            small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+
 
             # Check if the user has clicked on the window
 
@@ -70,16 +75,21 @@ def getdata():
                 # Detect faces in the image
                 face_locations = face_recognition.face_locations(rgb_small_frame)
                 face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-                print(name)
+                # print(name)
+
                 # Insert the image data, filename, and ID into the database
-                img_data = pyodbc.Binary(img_encoded)
-                #name = request.form.get('image_name')
+                Img_data = pyodbc.Binary(img_encoded)
+
                 if (name is not None) and (len(face_encodings) > 0):
-                    val  =  face_encodings[0].tobytes()
-                    # cursor.execute("INSERT INTO images (name, encoding, image) VALUES (?, ?, ?);", ( name , val , img_data ))
-                    database(p ,name ,val ,img_data )
+
+                    encode_data  =  face_encodings[0].tobytes()
+                    # print(f" {name} : {Img_data} , {encode_data}")
+                    database(p , name ,Img_data ,encode_data )
+
                     msg = " Account Created Successfully..."
+
                 else:
+
                     msg = " Account Not Created "
                     print("Image name is none or No face detected in the image.")
 
@@ -93,14 +103,14 @@ def getdata():
                 # mydb.commit()
 
                 break
-    except:
+    # except:
 
-        mydb.rollback()
-        msg = "Error in Insertion"
+    #     mydb.rollback()
+    #     msg = "Error in Insertion"
 
-    finally:
+    # finally:
 
-        # Release the camera and database connection
+    #     # Release the camera and database connection
         video_capture.release()
         cv2.destroyAllWindows()
         cursor.close()
@@ -200,7 +210,7 @@ def fetchdata():
     # return response
         except:
             mydb.rollback()
-            msg = "Error in Insertion"
+            msg = "Error in Logining"
         finally:
         # Release the camera and database connection
             video_capture.release()
@@ -222,34 +232,34 @@ def changedata():
             email = request.form['email']
             curpass = request.form["curpass"]
             password = request.form["pass"]
-            confirmpass = request.form["conpass"]
 
-            with sqlite3.connect("sample.db") as conn:
-                curs = conn.cursor()
-                scmd = """ SELECT * FROM Empolyee ; """
-                curs.execute(scmd)
-                result = curs.fetchmany()
-                for i in result:
-                    if (curpass == i[3]):
-                        conn.execute(" UPDATE Empolyee SET password=(?) WHERE email=(?)",(password , email))
-                        msg = " Password Changed Successfully.."
-                    else :
-                        msg = " Password Changed Unsuccessfully.."
-                curs.execute(" SELECT * FROM Empolyee ; ")
-                result1 = curs.fetchmany()
-                for j in result1:
-                    print(j)
-                print(" Table Data Updated... ")
-                conn.commit()
+            scmd = """ SELECT * FROM Empolyee ; """
+            cursor.execute(scmd)
+            result = cursor.fetchmany()
+            for i in result:
+                if (curpass == i[3]):
+                    mydb.execute(" UPDATE Empolyee SET password=(?) WHERE email=(?)",(password , email))
+                    msg = " Password Changed Successfully.."
+                else :
+                    msg = " Password Changed Unsuccessfully.."
+            cursor.execute(" SELECT * FROM Empolyee ; ")
+            result1 = cursor.fetchmany()
+            for j in result1:
+                print(j)
+            print(" Table Data Updated... ")
+            mydb.commit()
+           
         except:
-            conn.rollback()
-            msg = "Error in Logining"
+            mydb.rollback()
+            msg = "Error in Updation"
             
 
         finally:
-            conn.close()
+            cursor.close()
+            mydb.close()
             return render_template("result.html", msg= msg)
 
 s.close()
+
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
