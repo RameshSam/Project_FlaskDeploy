@@ -1,5 +1,5 @@
 from flask import Flask , render_template , request
-import cv2 , face_recognition , numpy as np , pyodbc , sqlite3
+import cv2 , face_recognition , numpy as np , pyodbc , sqlite3 , FullBody_DetectionModule as f
 from models import database , Person_Details , Session
 
 # website url
@@ -11,6 +11,8 @@ from models import database , Person_Details , Session
 
 s= Session()
 app =Flask(__name__,template_folder="file")
+
+dector = f.FullBody_Detector() # Create FaceMesh 468 Locations
 
 # Connect to the database
 
@@ -28,6 +30,7 @@ def index():
 
 @app.route("/getdata",methods = ['GET','POST'])   
 def getdata():
+    # try:
         reg = request.form["Reg"]
         name = request.form["name"]
         email = request.form["email"]
@@ -53,6 +56,8 @@ def getdata():
 
             # Resize the frame for faster processing
             # small_frame = cv2.resize(frame, (640,480), fx=0.25, fy=0.25)
+
+            frame , facemesh_data = dector.findFaceMesh(frame)
 
             # Display the frame in the window
             cv2.imshow(' Interface ',frame)
@@ -93,9 +98,23 @@ def getdata():
                     print("Image name is none or No face detected in the image.")
 
                 # Break out of the loop and close the window
+                # scmd = """ SELECT * FROM images ;"""
+                # cursor.execute(scmd)
+                # result = cursor.fetchmany()
+                # for i in result:
+                #     print(i)
+                # print(" Table Showed ")
+                # mydb.commit()
 
                 break
+    # except:
 
+    #     mydb.rollback()
+    #     msg = "Error in Insertion"
+
+    # finally:
+
+    #     # Release the camera and database connection
         video_capture.release()
         cv2.destroyAllWindows()
         cursor.close()
@@ -117,7 +136,7 @@ def fetchdata():
             face_names = []
             known_face_encodings = []
             process_this_frame = True
-            
+
             cursor.execute("SELECT reg FROM images") 
             image_ids = cursor.fetchall()
 
@@ -197,11 +216,12 @@ def fetchdata():
             mydb.rollback()
             msg = "Error in Logining"
         finally:
-            # Release the camera and database connection
+        # Release the camera and database connection
             video_capture.release()
             cv2.destroyAllWindows()
             cursor.close()
             mydb.close()
+
 
             return render_template("result.html", msg= msg)
 
@@ -211,9 +231,7 @@ def change():
 
 @app.route("/changedata",methods =['GET',"POST"])
 def changedata():
-   
    if request.method == "POST" :
-        
         try:
             email = request.form['email']
             curpass = request.form["curpass"]
@@ -238,6 +256,7 @@ def changedata():
         except:
             mydb.rollback()
             msg = "Error in Updation"
+            
 
         finally:
             cursor.close()
